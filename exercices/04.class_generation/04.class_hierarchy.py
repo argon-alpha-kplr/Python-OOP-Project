@@ -25,6 +25,8 @@ Elle prend les arguments suivant:
     - superclass_name : une chaîne de caractères représentant le nom de la classe parente. Par défaut, sa valeur est None pour la racine de la hiérarchie.
     - superclass_args : une liste des arguments des arguments de la classe mère à passer à la classe fille.
 """
+#import class_generation
+
 def generate_class_hierarchy(json_dict :dict, superclass_name:str=None,superclass_args:list=[]):
     # Initialisation de la chaîne de caractères contenant les définitions de classes
     class_defs = ""
@@ -50,7 +52,18 @@ def generate_class_hierarchy(json_dict :dict, superclass_name:str=None,superclas
     Retourne la chaîne de caractères contenant les définitions de classes
     
     """
+    for class_name, class_attrs in json_dict.items():
 
+        class_def = class_generation.generate_class_def(class_name, class_attrs, superclass_name,superclass_args)
+        class_defs += class_def
+
+        if "subclasses" in class_attrs:
+            super_attr = (list(class_attrs.keys())+superclass_args)
+            super_attr.remove("subclasses")
+            subclass_defs = generate_class_hierarchy(class_attrs["subclasses"], class_name, super_attr)
+            class_defs += subclass_defs
+
+    return class_defs
 
 # la méthode write_content va nous permet d'écrire le code généré automatiquement des classes dans un fichier Python séparé
 """
